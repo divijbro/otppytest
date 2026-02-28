@@ -6,6 +6,8 @@ import resend
 import datetime
 from random import randint
 
+auth_email = "cooldivijdhingra@gmail.com"
+
 app = Flask(__name__)
 CORS(app)
 
@@ -58,6 +60,7 @@ def send_otp():
     except Exception as e:
         print("OTP Error:", e)
         return jsonify({"success": False}), 500
+
 
 @app.route("/verifyotp", methods=["POST"])
 def verify_otp():
@@ -137,6 +140,38 @@ def create_booking():
             """
         })
 
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": ["yourcompanyemail@gmail.com"],
+            "subject": f"🎉 New Booking Request – {booking_id}",
+            "html": f"""
+                <div style="font-family: Arial, sans-serif; padding:20px;">
+                    <h2 style="color:#ff4081;">🎉 New Booking Request Received</h2>
+                    
+                    <p><strong>Booking ID:</strong> {booking_id}</p>
+                    <hr>
+
+                    <h3>Customer Details</h3>
+                    <p><strong>Name:</strong> {name}</p>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Phone:</strong> {phone}</p>
+
+                    <h3>Event Information</h3>
+                    <p>{message}</p>
+
+                    <hr>
+
+                    <p style="color:#666;">
+                        Please contact the customer within 24 hours.
+                    </p>
+
+                    <p>
+                        – MNMK Celebrations System 🚀
+                    </p>
+                </div>
+            """
+        })
+
         return jsonify({
             "success": True,
             "booking_id": booking_id
@@ -149,4 +184,3 @@ def create_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
