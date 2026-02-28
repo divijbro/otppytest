@@ -87,7 +87,12 @@ def verify_otp():
 
         otp_db, expiry = record
 
-        if otp_db == otp_input and expiry > datetime.datetime.utcnow():
+        print("DB OTP:", otp_db)
+        print("USER OTP:", otp_input)
+        print("EXPIRY:", expiry)
+        print("NOW:", datetime.datetime.utcnow())
+
+        if str(otp_db).strip() == str(otp_input).strip() and expiry > datetime.datetime.utcnow():
             return jsonify({"success": True})
         else:
             return jsonify({"success": False})
@@ -144,3 +149,4 @@ def create_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
