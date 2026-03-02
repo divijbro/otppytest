@@ -112,7 +112,7 @@ def create_booking():
     name = data.get("name")
     email = data.get("email")
     phone = data.get("phone")
-    message = data.get("message")
+    date = data.get("date")
 
     booking_id = f"MNMK-{int(datetime.datetime.utcnow().timestamp())}"
 
@@ -121,9 +121,9 @@ def create_booking():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO bookings (booking_id, name, email, phone, message, status)
+            INSERT INTO bookings (booking_id, name, email, phone, date, status)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (booking_id, name, email, phone, message, "pending"))
+        """, (booking_id, name, email, phone, date, "pending"))
 
         conn.commit()
         cursor.close()
@@ -184,4 +184,5 @@ def create_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
