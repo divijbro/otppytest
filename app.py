@@ -9,7 +9,7 @@ from random import randint
 auth_email = "cooldivijdhingra@gmail.com"
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 DATABASE_URL = os.environ.get("DB_URL")
 resend.api_key = os.environ.get("RESEND_API_KEY")
@@ -221,3 +221,4 @@ def check_availability():
     except Exception as e:
         print("Availability Error:", e)
         return jsonify({"available": False}), 500
+
