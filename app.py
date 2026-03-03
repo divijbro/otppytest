@@ -113,6 +113,8 @@ def create_booking():
     email = data.get("email")
     phone = data.get("phone")
     date = data.get("date")
+    venue = data.get("venue")
+    time = data.get("time")
 
     booking_id = f"MNMK-{int(datetime.datetime.utcnow().timestamp())}"
 
@@ -121,9 +123,9 @@ def create_booking():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO bookings (booking_id, name, email, phone, date, status)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (booking_id, name, email, phone, date, "pending"))
+            INSERT INTO bookings (booking_id, name, email, phone, date, venue, time, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (booking_id, name, email, phone, date, venue, time, "pending"))
 
         conn.commit()
         cursor.close()
@@ -142,7 +144,7 @@ def create_booking():
 
         resend.Emails.send({
             "from": "onboarding@resend.dev",
-            "to": ["yourcompanyemail@gmail.com"],
+            "to": [auth_email],
             "subject": f"🎉 New Booking Request – {booking_id}",
             "html": f"""
                 <div style="font-family: Arial, sans-serif; padding:20px;">
@@ -155,9 +157,10 @@ def create_booking():
                     <p><strong>Name:</strong> {name}</p>
                     <p><strong>Email:</strong> {email}</p>
                     <p><strong>Phone:</strong> {phone}</p>
-
-                    <h3>Event Information</h3>
-                    <p>{message}</p>
+                    <p><strong>Date:</strong> {date}</p>
+                    <p><strong>Venue:</strong> {venue}</p>
+                    <p><strong>Time:</strong> {time}</p>
+                    
 
                     <hr>
 
@@ -185,4 +188,36 @@ def create_booking():
 if __name__ == "__main__":
     app.run(debug=True)
 
+@app.route("/checkavailability", methods=["POST"])
+def check_availability():
+    data = request.json
+    date = data.get("date")
+    venue = data.get("venue")
+    time = data.get("time")
 
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM bookings
+            WHERE date = %s
+            AND venue = %s
+            AND time = %s
+            AND status = 'pending'
+        """, (date, venue, time))
+
+        count = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        if count > 0:
+            return jsonify({"available": False})
+        else:
+            return jsonify({"available": True})
+
+    except Exception as e:
+        print("Availability Error:", e)
+        return jsonify({"available": False}), 500
