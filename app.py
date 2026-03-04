@@ -9,7 +9,7 @@ from random import randint
 auth_email = "cooldivijdhingra@gmail.com"
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, supports_credentials=True)
 
 DATABASE_URL = os.environ.get("DB_URL")
 resend.api_key = os.environ.get("RESEND_API_KEY")
@@ -189,6 +189,44 @@ def create_booking():
 def check_availability():
     print("Route Hit")
     return jsonify({"available": True})
+
+@app.route("/checkavailability", methods=["POST"])
+def check_availability():
+    data = request.json
+    date = data.get("date")
+    venue = data.get("venue")
+    time = data.get("time")
+
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM bookings
+            WHERE event_date = %s
+            AND venue = %s
+            AND time = %s
+            AND status = 'pending'
+        """, (date, venue, time))
+
+        count = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        if count > 0:
+            return jsonify({"available": False})
+        else:
+            return jsonify({"available": True})
+
+    except Exception as e:
+        print("Availability Error:", e)
+        return jsonify({"available": False}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 
 
