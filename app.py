@@ -184,12 +184,6 @@ def create_booking():
         print("Booking Error:", e)
         return jsonify({"success": False}), 500
 
-
-@app.route("/checkavailability", methods=["POST"])
-def check_availability():
-    print("Route Hit")
-    return jsonify({"available": True})
-
 @app.route("/checkavailability", methods=["POST"])
 def check_availability():
     data = request.json
@@ -226,6 +220,7 @@ def check_availability():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
