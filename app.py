@@ -250,7 +250,7 @@ def get_bookings():
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT booking_id, name, email, phone, date, venue, time, status
+            SELECT booking_id, name, email, phone, event_date, venue, time, status
             FROM bookings
             ORDER BY date DESC
         """)
