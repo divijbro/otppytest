@@ -198,7 +198,7 @@ def check_availability():
         cursor.execute("""
             SELECT COUNT(*)
             FROM bookings
-            WHERE date = %s
+            WHERE event_date = %s
             AND venue = %s
             AND time = %s
             AND status = 'pending'
