@@ -266,7 +266,7 @@ def get_bookings():
                 "phone": r[3],
                 "date": r[4],
                 "venue": r[5],
-                "time": r[6],
+                "time": str(r[6]),
                 "status": r[7]
             })
 
