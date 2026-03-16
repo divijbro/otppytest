@@ -252,7 +252,7 @@ def get_bookings():
         cursor.execute("""
             SELECT booking_id, name, email, phone, event_date, venue, time, status
             FROM bookings
-            ORDER BY date DESC
+            ORDER BY event_date DESC
         """)
 
         rows = cursor.fetchall()
