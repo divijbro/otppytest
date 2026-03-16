@@ -9,7 +9,7 @@ from random import randint
 auth_email = "cooldivijdhingra@gmail.com"
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app)
 
 DATABASE_URL = os.environ.get("DB_URL")
 resend.api_key = os.environ.get("RESEND_API_KEY")
@@ -123,7 +123,7 @@ def create_booking():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO bookings (booking_id, name, email, phone, event_date, venue, time, status)
+            INSERT INTO bookings (booking_id, name, email, phone, date, venue, time, status)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (booking_id, name, email, phone, date, venue, time, "pending"))
 
@@ -198,7 +198,7 @@ def check_availability():
         cursor.execute("""
             SELECT COUNT(*)
             FROM bookings
-            WHERE event_date = %s
+            WHERE date = %s
             AND venue = %s
             AND time = %s
             AND status = 'pending'
@@ -217,14 +217,67 @@ def check_availability():
     except Exception as e:
         print("Availability Error:", e)
         return jsonify({"available": False}), 500
+    
+@app.route("/admin_check", methods = ["POST"])
+def changestatus():
+    data = request.json
+    status = "confirmed"
+    booking_id = data.get("booking_id")
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
 
+        cursor.execute("""
+            UPDATE bookings
+            SET status = %s
+            WHERE booking_id = %s
+        """, (status, booking_id))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True})
+    except Exception as e:
+        print("Update Error:", e)
+        return jsonify({"success": False}), 500
+    
+@app.route("/admin/bookings", methods=["GET"])
+def get_bookings():
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT booking_id, name, email, phone, date, venue, time, status
+            FROM bookings
+            ORDER BY date DESC
+        """)
+
+        rows = cursor.fetchall()
+
+        bookings = []
+        for r in rows:
+            bookings.append({
+                "booking_id": r[0],
+                "name": r[1],
+                "email": r[2],
+                "phone": r[3],
+                "date": r[4],
+                "venue": r[5],
+                "time": r[6],
+                "status": r[7]
+            })
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(bookings)
+
+    except Exception as e:
+        print("Admin Error:", e)
+        return jsonify({"error": "Failed"}), 500
+    
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
-
-
