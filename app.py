@@ -123,7 +123,7 @@ def create_booking():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO bookings (booking_id, name, email, phone, date, venue, time, status)
+            INSERT INTO bookings (booking_id, name, email, phone, event_date, venue, time, status)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (booking_id, name, email, phone, date, venue, time, "pending"))
 
