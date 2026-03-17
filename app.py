@@ -252,6 +252,7 @@ def get_bookings():
         cursor.execute("""
             SELECT booking_id, name, email, phone, event_date, venue, time, status
             FROM bookings
+            WHERE status != 'cancelled'
             ORDER BY event_date DESC
         """)
 
